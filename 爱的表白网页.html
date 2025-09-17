@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>给你 — 一封动态的情书</title>
+  <style>
+    :root{
+      --bg1:#0f1724;
+      --bg2:#2b0b3a;
+      --accent: #ff6b81;
+      --accent-2: #ff9fb1;
+      --glass: rgba(255,255,255,0.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei', 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{
+      background: radial-gradient(1200px 600px at 10% 20%, rgba(255,107,129,0.08), transparent),
+                  radial-gradient(900px 500px at 90% 80%, rgba(255,159,177,0.06), transparent),
+                  linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:#fff;overflow:hidden;
+    }
+    .container{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px}
+
+    /* Card */
+    .card{
+      width:min(980px,95%);background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));backdrop-filter:blur(6px);
+      border-radius:18px;padding:28px;box-shadow:0 8px 40px rgba(2,6,23,0.6);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.04)
+    }
+
+    header{display:flex;align-items:center;gap:18px}
+    .avatar{width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;box-shadow:0 6px 24px rgba(255,107,129,0.14)}
+    h1{margin:0;font-size:26px;letter-spacing:1px}
+    p.lead{margin:6px 0 0;color:rgba(255,255,255,0.85)}
+
+    .main{display:flex;gap:24px;margin-top:18px}
+    .left{flex:1;min-width:260px}
+    .right{width:360px;max-width:40%;min-width:260px}
+
+    /* typewriter message */
+    .letter{
+      background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));padding:18px;border-radius:12px;min-height:180px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.03)
+    }
+    .typewriter{font-size:18px;line-height:1.7}
+    .cursor{display:inline-block;width:8px;height:20px;background:var(--accent);vertical-align:bottom;margin-left:6px;animation:blink 1s steps(2) infinite}
+    @keyframes blink{50%{opacity:0}}
+
+    /* heart button */
+    .actions{display:flex;gap:12px;margin-top:12px}
+    .btn{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(255,107,129,0.14);transition:transform .18s}
+    .btn:active{transform:scale(.98)}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+
+    /* hearts container */
+    #hearts{position:absolute;inset:0;pointer-events:none}
+
+    /* right column */
+    .panel{background:var(--glass);padding:16px;border-radius:12px}
+    .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .8s ease}
+
+    /* message input */
+    .compose{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    textarea{resize:none;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:14px;min-height:92px}
+
+    /* floating mini hearts */
+    .mini-heart{position:absolute;width:14px;height:14px;transform:rotate(-45deg);}
+    .mini-heart:before,.mini-heart:after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:var(--accent)}
+    .mini-heart:before{top:-7px;left:0}
+    .mini-heart:after{left:7px;top:0}
+
+    /* footer */
+    footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;color:rgba(255,255,255,0.7);font-size:13px}
+
+    /* responsive */
+    @media (max-width:880px){.main{flex-direction:column}.right{width:100%;max-width:none}}
+
+    /* nice floating hearts animation (CSS fallback for no-js) */
+    .float-heart{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%) rotate(-45deg);opacity:0;animation:floatUp 4s linear infinite}
+    @keyframes floatUp{0%{transform:translate(-50%,0) scale(.6) rotate(-45deg);opacity:1}100%{transform:translate(-50%,-520px) scale(1.4) rotate(15deg);opacity:0}}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <header>
+        <div class="avatar">❤</div>
+        <div>
+          <h1>给你 — 我的小惊喜</h1>
+          <p class="lead">把要说的话做成网页送给你，点心里的那个按钮，爱就在屏幕上飞起来 ✨</p>
+        </div>
+      </header>
+
+      <div class="main">
+        <div class="left">
+          <div class="letter">
+            <div class="typewriter" id="typewriter">（点击下方“表白”按钮，慢慢读出我的心意）<span class="cursor" id="cursor"></span></div>
+            <div class="actions">
+              <button class="btn" id="sendHeart">表白 · 送心</button>
+              <button class="btn ghost" id="toggleConfetti">切换烟花</button>
+              <button class="btn ghost" id="surprise">惊喜🎁</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;position:relative">
+            <div class="panel">
+              <strong>写下一句你想说的话：</strong>
+              <div class="compose">
+                <textarea id="customMsg" placeholder="写给她/他的秘密话...（可选）"></textarea>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button class="btn" id="preview">预览并发送</button>
+                  <button class="btn ghost" id="clear">清空</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="panel">
+            <strong>心意进度</strong>
+            <div style="margin-top:8px" class="progress"><i id="progressBar"></i></div>
+            <div style="margin-top:12px">
+              <strong>小动画示例</strong>
+              <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px">点击卡片或空白处，也会生成小心心～</p>
+            </div>
+          </div>
+
+          <div style="height:16px"></div>
+          <div class="panel" style="margin-top:12px;text-align:center">
+            <strong>保存/分享</strong>
+            <p style="margin:8px 0 12px;color:rgba(255,255,255,0.8);font-size:13px">右上角三点 → 保存页面 或 截图分享</p>
+            <button class="btn" id="download">下载 HTML 文件</button>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div>Made with <span style="color:var(--accent)">❤</span></div>
+        <div id="timeText"></div>
+      </footer>
+
+      <div id="hearts"></div>
+
+    </div>
+  </div>
+
+  <canvas id="confettiCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:60"></canvas>
+
+  <script>
+    // ---------- util ----------
+    const hearts = document.getElementById('hearts');
+    const progress = document.getElementById('progressBar');
+    const typeEl = document.getElementById('typewriter');
+    const cursor = document.getElementById('cursor');
+    let confettiOn = false;
+    let loveCount = 0;
+
+    // sample messages
+    const messages = [
+      '从见到你的第一面起，我就知道——你会住进我的余生。',
+      '你的笑，是世界上我最想要收藏的光。',
+      '如果可以，我愿意用一生去慢慢学习如何更好地爱你。',
+      '爱你，不需要理由，只需要勇气。',
+      '在我所有的诗里，你是最后一句，也是最温柔的一句。'
+    ];
+
+    // type writer function
+    function typeMessage(text, speed=40){
+      typeEl.innerHTML = '';
+      let i=0;
+      cursor.style.display = 'inline-block';
+      return new Promise(resolve=>{
+        const t = setInterval(()=>{
+          if(i>=text.length){
+            clearInterval(t);
+            cursor.style.display = 'none';
+            resolve();
+            return;
+          }
+          typeEl.innerHTML += text[i++];
+        }, speed);
+      });
+    }
+
+    // create floating heart
+    function createHeart(x, y, options={size:18, color:null}){
+      const el = document.createElement('div');
+      el.className = 'mini-heart';
+      el.style.left = (x - options.size/2) + 'px';
+      el.style.top = (y - options.size/2) + 'px';
+      el.style.width = options.size+'px';
+      el.style.height = options.size+'px';
+      el.style.transform = 'rotate(-45deg)';
+      if(options.color){
+        el.style.setProperty('--c', options.color);
+        el.style.background = options.color;
+        el.querySelector && (el.querySelector(':before')?.style.background = options.color);
+      }
+      hearts.appendChild(el);
+
+      const dx = (Math.random()*120 - 60);
+      const dy = -(120 + Math.random()*220);
+      const rot = (Math.random()*60 - 30);
+      el.animate([
+        {transform: `translate(0px,0px) rotate(-45deg) scale(.6)`, opacity:1},
+        {transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(1.2)`, opacity:0}
+      ],{duration: 1200 + Math.random()*900, easing:'cubic-bezier(.2,.8,.2,1)'});
+      setTimeout(()=>el.remove(), 2400);
+    }
+
+    // click to create hearts
+    document.addEventListener('click', (e)=>{
+      // only create if clicking inside card area roughly
+      const card = document.querySelector('.card');
+      const r = card.getBoundingClientRect();
+      if(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom){
+        for(let i=0;i<3;i++)createHeart(e.clientX - r.left + (Math.random()*40-20), e.clientY - r.top + (Math.random()*40-20), {size:10+Math.random()*18});
+        incrementLove(1);
+      }
+    });
+
+    // send heart button
+    document.getElementById('sendHeart').addEventListener('click', async ()=>{
+      const msg = messages[Math.floor(Math.random()*messages.length)];
+      await typeMessage(msg, 30);
+      burstHearts(20);
+      incrementLove(5);
+    });
+
+    document.getElementById('preview').addEventListener('click', async ()=>{
+      const custom = document.getElementById('customMsg').value.trim();
+      if(custom){
+        await typeMessage(custom, 24);
+        burstHearts(30);
+        incrementLove(8);
+      }else{
+        // if empty, just run random
+        document.getElementById('sendHeart').click();
+      }
+    });
+
+    document.getElementById('clear').addEventListener('click', ()=>{document.getElementById('customMsg').value='';});
+
+    document.getElementById('surprise').addEventListener('click', ()=>{
+      // surprise: open a modal-like big heart
+      showBigHeart();
+      burstHearts(60);
+      incrementLove(12);
+    });
+
+    document.getElementById('toggleConfetti').addEventListener('click', ()=>{
+      confettiOn = !confettiOn;
+      if(confettiOn){startConfetti(); document.getElementById('toggleConfetti').textContent='关闭烟花'}else{stopConfetti(); document.getElementById('toggleConfetti').textContent='切换烟花'}
+    });
+
+    // progress
+    function incrementLove(n){
+      loveCount += n;
+      const pct = Math.min(100, Math.round(loveCount/2));
+      progress.style.width = pct + '%';
+      updateTimeText();
+    }
+
+    function burstHearts(count){
+      const card = document.querySelector('.card');
+      const r = card.getBoundingClientRect();
+      for(let i=0;i<count;i++){
+        setTimeout(()=>{
+          createHeart(Math.random()*(r.width-60)+30, Math.random()*(r.height-60)+30, {size:8+Math.random()*22});
+        }, i*12);
+      }
+    }
+
+    // big heart modal
+    function showBigHeart(){
+      const el = document.createElement('div');
+      el.style.position='fixed';el.style.inset=0;el.style.display='flex';el.style.alignItems='center';el.style.justifyContent='center';el.style.zIndex=120;el.style.background='radial-gradient(ellipse at center, rgba(0,0,0,0.25), rgba(0,0,0,0.6))';
+      const heart = document.createElement('div');
+      heart.style.width='260px';heart.style.height='260px';heart.style.transform='rotate(-45deg)';heart.style.position='relative';
+      heart.style.borderRadius='8px';
+      heart.innerHTML = '<div style="position:absolute;inset:0;transform:rotate(-45deg)"></div>';
+      // draw heart with pseudo elements via CSS
+      heart.style.display='flex';heart.style.alignItems='center';heart.style.justifyContent='center';
+      heart.style.background='linear-gradient(135deg,var(--accent),var(--accent-2))';heart.style.boxShadow='0 24px 80px rgba(255,107,129,0.25)';
+      el.appendChild(heart);
+      const text = document.createElement('div');text.innerHTML='<div style="transform:rotate(45deg);text-align:center;font-size:20px;font-weight:700">我爱你<br><span style="font-size:14px;font-weight:400">愿意和你一起走下去吗？</span></div>';
+      el.appendChild(text);
+      document.body.appendChild(el);
+      el.addEventListener('click', ()=>el.remove());
+      setTimeout(()=>el.remove(), 5000);
+    }
+
+    // confetti (simple particles) ------------------
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+    function resizeCanvas(){canvas.width = innerWidth; canvas.height = innerHeight}
+    window.addEventListener('resize', resizeCanvas);resizeCanvas();
+
+    function startConfetti(){
+      confettiParticles = [];
+      for(let i=0;i<120;i++){
+        confettiParticles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height*0.6 - canvas.height, vx:(Math.random()*2-1)*2, vy:2+Math.random()*4, size:6+Math.random()*10, rot:Math.random()*360, vr:Math.random()*8-4, color: `hsl(${Math.random()*40+340},90%,60%)`});
+      }
+      if(!confettiLoop) confettiLoop = requestAnimationFrame(confettiStep);
+    }
+    function stopConfetti(){confettiParticles=[]; if(confettiLoop){cancelAnimationFrame(confettiLoop);confettiLoop=null; clearCanvas();}}
+    function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height)}
+    let confettiLoop = null;
+    function confettiStep(){
+      clearCanvas();
+      for(const p of confettiParticles){
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.03;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle = p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+        ctx.restore();
+      }
+      confettiParticles = confettiParticles.filter(p=>p.y < canvas.height + 60);
+      if(confettiParticles.length>0) confettiLoop = requestAnimationFrame(confettiStep); else confettiLoop=null;
+    }
+
+    // download HTML
+    document.getElementById('download').addEventListener('click', ()=>{
+      const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='love-note.html'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // time text
+    function updateTimeText(){
+      const d = new Date();
+      const t = d.toLocaleString('zh-CN', {hour12:false});
+      document.getElementById('timeText').textContent = `更新于 ${t} · 爱心 ${loveCount}`;
+    }
+    updateTimeText(); setInterval(updateTimeText, 1000*30);
+
+    // mini ambient float hearts (css fallback for no-js handled)
+    for(let i=0;i<8;i++){
+      const el = document.createElement('div'); el.className='float-heart'; el.style.left = (10 + i*9) + '%'; el.style.top = (60 + Math.random()*20) + '%'; el.style.animationDelay = (i*0.6)+'s'; el.style.background = 'linear-gradient(135deg,var(--accent),var(--accent-2))'; document.querySelector('.card').appendChild(el);
+    }
+
+    // small floating particles: periodically create tiny hearts
+    setInterval(()=>{
+      if(Math.random() < 0.6)return;
+      const card = document.querySelector('.card');
+      const r = card.getBoundingClientRect();
+      createHeart(Math.random()*(r.width-60)+30, Math.random()*(r.height-60)+30, {size:6+Math.random()*12});
+    }, 900);
+
+    // initial typewriter
+    (async ()=>{ await typeMessage('你是我喜欢的故事，愿意成为我未来的每一页吗？', 36); })();
+
+    // keyboard shortcut: press H to send heart
+    document.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='h'){ document.getElementById('sendHeart').click(); } });
+
+    // accessibility note: support prefers-reduced-motion
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(mq.matches){document.querySelectorAll('*').forEach(n=>n.style.animationDuration='0.01s')}
+
+  </script>
+</body>
+</html>
